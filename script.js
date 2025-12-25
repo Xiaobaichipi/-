@@ -409,16 +409,29 @@ class VisionToLatexApp {
             }
             
             const data = await response.json();
+            console.log('获取到的总模型数量:', data.data ? data.data.length : 0);
             
-            // 过滤出视觉模型
-            const visionModels = data.data.filter(model => 
-                model.id.includes('VL') || 
-                model.id.includes('vision') || 
-                model.id.includes('Vision') ||
-                model.id.includes('Qwen') ||
-                model.id.includes('glm') ||
-                model.id.includes('GLM')
-            );
+            // 过滤出视觉模型，使用更宽松的过滤条件
+            const visionModels = data.data.filter(model => {
+                const modelId = model.id.toLowerCase();
+                const modelName = (model.name || '').toLowerCase();
+                
+                // 包含视觉相关关键词的模型
+                return modelId.includes('vl') || 
+                       modelId.includes('vision') || 
+                       modelId.includes('qwen') ||
+                       modelId.includes('glm') ||
+                       modelId.includes('deepseek') ||
+                       modelId.includes('internvl') ||
+                       modelId.includes('phi') ||
+                       modelId.includes('minicpm') ||
+                       modelName.includes('vision') ||
+                       modelName.includes('vl') ||
+                       modelName.includes('视觉');
+            });
+            
+            console.log('过滤后的视觉模型数量:', visionModels.length);
+            console.log('视觉模型列表:', visionModels.map(m => m.id));
             
             // 更新模型选择下拉菜单
             this.updateModelSelect(visionModels);
@@ -430,10 +443,12 @@ class VisionToLatexApp {
             // 如果API调用失败，使用默认模型列表
             const defaultModels = [
                 { id: 'Qwen/Qwen2-VL-72B-Instruct', name: 'Qwen2-VL-72B-Instruct' },
+                { id: 'Qwen/Qwen2-VL-7B-Instruct', name: 'Qwen2-VL-7B-Instruct' },
                 { id: 'Qwen/Qwen-VL-Chat', name: 'Qwen-VL-Chat' },
                 { id: 'THUDM/glm-4v-9b', name: 'GLM-4V-9B' },
-                { id: 'Qwen/QwQ-32B', name: 'QwQ-32B' },
-                { id: 'Qwen/Qwen3-72B-Instruct', name: 'Qwen3-72B-Instruct' }
+                { id: 'OpenGVLab/InternVL2-26B', name: 'InternVL2-26B' },
+                { id: 'deepseek-ai/deepseek-vl-7b-chat', name: 'DeepSeek-VL-7B' },
+                { id: 'Qwen/QwQ-32B', name: 'QwQ-32B' }
             ];
             this.updateModelSelect(defaultModels);
         }
